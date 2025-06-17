@@ -1,4 +1,4 @@
-package com.wagwag;
+package com.noname.wagwag;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

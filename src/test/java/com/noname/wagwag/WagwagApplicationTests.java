@@ -1,4 +1,4 @@
-package com.wagwag;
+package com.noname.wagwag;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
