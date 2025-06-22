@@ -1,8 +1,10 @@
 package com.noname.wagwag.configuration;
 
 
+import com.noname.wagwag.repository.UserRepository;
 import com.noname.wagwag.security.JwtAuthTokenFilter;
 import com.noname.wagwag.security.JwtProvider;
+import com.noname.wagwag.security.WagwagAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,8 +44,8 @@ public class SecurityConfiguration {
         return Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
     @Bean
-    public AuthenticationProvider wagwagAuthenticationProvider(Pbkdf2PasswordEncoder encoder) {
-        return new WagWagAuthenticationProvider(userRepository, encoder);
+    public AuthenticationProvider wagwagAuthenticationProvider(UserRepository userRepository, Pbkdf2PasswordEncoder encoder) {
+        return new WagwagAuthenticationProvider(userRepository, encoder);
     }
 
     @Bean
