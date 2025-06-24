@@ -20,7 +20,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;                   // →
+    private Long userId;
 
     /* 기본 컬럼 (길이만 지정) */
     @Column(length = 20, nullable = false)

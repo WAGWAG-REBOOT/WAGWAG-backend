@@ -21,6 +21,17 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * 1. JWT-STATELESS 정책기반임
+ * 2. JwtProvider는 HS-256를 사용하므로 32bit 이상의 키 주입 필요
+ * 3. JwtAuthTokenFilter는 모든 요청에서 헤더를 검사함
+ * 3-1. 헤더는 "Authorization: Bearer..." 로 시작
+ * 4. PasswordEncoder는 이전에 구현한 비밀번호 관련 로직, 나중에 사용 하것지
+ * 5. WagwagAuthenticationProvider는 Authservice가 만든 WagwagAuthenticationToken만 처리
+ * 6. SecurityFilterChain은 "/api/auth/**" 경로만 일단 토큰없이 접근 가능, 이외의 엔드포인트는 인증 필요
+ * */
+
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -44,8 +55,8 @@ public class SecurityConfiguration {
         return Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
     @Bean
-    public AuthenticationProvider wagwagAuthenticationProvider(UserRepository userRepository, Pbkdf2PasswordEncoder encoder) {
-        return new WagwagAuthenticationProvider(userRepository, encoder);
+    public AuthenticationProvider wagwagAuthenticationProvider(UserRepository userRepository) {
+        return new WagwagAuthenticationProvider(userRepository);
     }
 
     @Bean

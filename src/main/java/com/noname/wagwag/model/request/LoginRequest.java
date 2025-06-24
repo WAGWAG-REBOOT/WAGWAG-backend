@@ -1,16 +1,23 @@
 package com.noname.wagwag.model.request;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import com.noname.wagwag.repository.entity.SocialType;
+import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 public class LoginRequest {
 
+    @NotBlank(message = "프로필 이름이 필요합니다")
+    private String userName;
 
-    @NotBlank(message = "닉네임 왜안씀?")
-    private String username;
+    @Min(value = 0, message = "나이는 0 이상이어야 합니다")
+    private Integer age;
 
-    @NotBlank(message = "비번 왜안씀?")
-    private String password;
+    @Email(message = "유효한 이메일 형식이 아닙니다")
+    private String email;
 
+    /** KAKAO, NAVER, GOOGLE, DEVELOP 중 하나 */
+    @NotNull(message = "소셜 타입이 필요합니다")
+    private SocialType socialType;
 }
