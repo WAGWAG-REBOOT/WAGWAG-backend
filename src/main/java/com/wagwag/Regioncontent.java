@@ -1,22 +1,23 @@
 package com.wagwag;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "regioncontent", schema = "wagwag")
 public class Regioncontent {
-    @Column(name = "region_id")
-    private Long regionId;
-
-    @Column(name = "post_id")
-    private Long postId;
+    @EmbeddedId
+    private RegioncontentId id;
 
     @Column(name = "is_available")
     private Boolean isAvailable;
@@ -27,6 +28,7 @@ public class Regioncontent {
     @Column(name = "available_until")
     private Instant availableUntil;
 
+    @Size(max = 255)
     @Column(name = "restriction_reason")
     private String restrictionReason;
 

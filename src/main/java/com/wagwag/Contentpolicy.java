@@ -1,21 +1,25 @@
 package com.wagwag;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "contentpolicy", schema = "wagwag")
 public class Contentpolicy {
+    @Id
     @Column(name = "content_policy_id", nullable = false)
-    private Long contentPolicyId;
+    private Long id;
 
+    @Size(max = 100)
+    @NotNull
     @Column(name = "policy_name", nullable = false, length = 100)
     private String policyName;
 

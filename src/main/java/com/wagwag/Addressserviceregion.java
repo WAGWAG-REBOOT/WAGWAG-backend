@@ -1,21 +1,21 @@
 package com.wagwag;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "addressserviceregion", schema = "wagwag")
 public class Addressserviceregion {
-    @Column(name = "address_id")
-    private Long addressId;
-
-    @Column(name = "region_id")
-    private Long regionId;
+    @EmbeddedId
+    private AddressserviceregionId id;
 
     @Column(name = "priority")
     private Integer priority;

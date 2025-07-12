@@ -1,22 +1,23 @@
 package com.wagwag;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "userserviceregion", schema = "wagwag")
 public class Userserviceregion {
-    @Column(name = "user_id")
-    private Long userId;
-
-    @Column(name = "region_id")
-    private Long regionId;
+    @EmbeddedId
+    private UserserviceregionId id;
 
     @Column(name = "assigned_at")
     private Instant assignedAt;
@@ -25,6 +26,7 @@ public class Userserviceregion {
     @Column(name = "last_updated")
     private Instant lastUpdated;
 
+    @Size(max = 20)
     @ColumnDefault("'AUTO'")
     @Column(name = "assignment_method", length = 20)
     private String assignmentMethod;

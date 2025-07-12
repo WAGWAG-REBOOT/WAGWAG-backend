@@ -2,8 +2,11 @@ package com.noname.wagwag.repository.entity;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +55,21 @@ public class User {
             orphanRemoval = true,
             fetch = FetchType.LAZY)
     private List<UserRole> roles = new ArrayList<>();
+
+    @Size(max = 20)
+    @Column(name = "phone_code", length = 20)
+    private String phoneCode;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    @ColumnDefault("current_timestamp()")
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @Size(max = 255)
+    @Column(name = "field")
+    private String field;
 
 }
 

@@ -1,23 +1,25 @@
 package com.wagwag;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "useraddress", schema = "wagwag")
 public class Useraddress {
-    @Column(name = "user_id")
-    private Long userId;
+    @EmbeddedId
+    private UseraddressId id;
 
-    @Column(name = "address_id")
-    private Long addressId;
-
+    @Size(max = 20)
     @ColumnDefault("'HOME'")
     @Column(name = "address_type", length = 20)
     private String addressType;

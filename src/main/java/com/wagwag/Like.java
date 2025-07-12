@@ -1,23 +1,23 @@
 package com.wagwag;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "`like`", schema = "wagwag")
 public class Like {
-    @Column(name = "post_id")
-    private Long postId;
+    @EmbeddedId
+    private LikeId id;
 
     @Column(name = "created_at")
     private Instant createdAt;
-
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
 
 }

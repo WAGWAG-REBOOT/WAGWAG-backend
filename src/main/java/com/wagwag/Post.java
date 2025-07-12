@@ -1,21 +1,25 @@
 package com.wagwag;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "post", schema = "wagwag")
 public class Post {
+    @Id
     @Column(name = "post_id")
     private Long postId;
 
+    @Size(max = 255)
+    @NotNull
     @Column(name = "title", nullable = false)
     private String title;
 
@@ -39,6 +43,7 @@ public class Post {
     @Column(name = "access_status")
     private Integer accessStatus;
 
+    @NotNull
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
