@@ -1,0 +1,437 @@
+openapi: 3.0.3
+info:
+  title: WAGWAG API
+  description: API for WAGWAG
+  version: 1.0.0
+
+servers:
+  - url: 'https://api.wagwag.com/v1'
+    description: Production server
+  - url: 'http://localhost:8080/v1'
+    description: Local development
+
+
+tags:
+  - name: auth
+  - name: user
+    description: User
+  - name: address
+    description: Address
+  - name: post
+    description: User posts
+  - name: region
+    description: Region
+
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - auth
+      summary: "POST api/auth/login"
+      operationId: "socialLogin"
+      responses:
+        "200":
+          description: "OK"
+  /api/auth/login/dev:
+    post:
+      summary: "POST api/auth/login/dev"
+      operationId: "devLogin"
+      responses:
+        "200":
+          description: "OK"
+  /api/user/validate:
+    get:
+      tags:
+        - auth
+      summary: "GET api/user/validate"
+      operationId: "validateNickname"
+      parameters:
+        - name: "nickname"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+  /api/addresses:
+    get:
+      tags:
+        - address
+      summary: List all addresses
+      operationId: "getAllAddresses"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Address"
+    post:
+      tags:
+        - address
+      summary: "POST api/addresses"
+      operationId: "createAddress"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Address"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Address"
+  /api/addresses/{id}:
+    get:
+      tags:
+        - address
+      summary: "GET api/addresses/{id}"
+      operationId: "getAddressById"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Address"
+    put:
+      tags:
+        - address
+      summary: "PUT api/addresses/{id}"
+      operationId: "updateAddress"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Address"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Address"
+    delete:
+      tags:
+        - address
+      summary: "DELETE api/addresses/{id}"
+      operationId: "deleteAddress"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+
+  /api/posts:
+    get:
+      tags:
+        - post
+      summary: List all posts
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+
+    post:
+      tags:
+        - post
+      summary: Create new post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '201':
+          description: Post created successfully
+  /api/posts/{id}:
+    get:
+      tags:
+        - post
+      summary: "GET api/posts/{id}"
+      operationId: "getPostById"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Post"
+    put:
+      tags:
+        - post
+      summary: "PUT api/posts/{id}"
+      operationId: "updatePost"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Post"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Post"
+    delete:
+      tags:
+        - post
+      summary: "DELETE api/posts/{id}"
+      operationId: "deletePost"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+  /api/region/{region-id}:
+    get:
+      tags:
+        - region
+      summary: "Get region info"
+      operationId: "getRegion"
+      parameters:
+        - name: "region-id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ServiceRegion"
+  /api/region/{region-id}/posts:
+    get:
+      tags:
+        - region
+        - post
+      summary: "Get all posts in region"
+      operationId: "getPostsInRegion"
+      parameters:
+        - name: "region-id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Post"
+
+
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        cityId:
+          type: string
+          maxLength: 50
+        districtId:
+          type: string
+          maxLength: 50
+        postalCode:
+          type: string
+          maxLength: 10
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - cityId
+        - districtId
+
+    Post:
+      type: object
+      properties:
+        postId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        thumbnail:
+          type: string
+        viewCnt:
+          type: integer
+        shareCnt:
+          type: integer
+        accessStatus:
+          type: integer
+        userId:
+          type: integer
+          format: int64
+        videoId:
+          type: integer
+          format: int64
+        regionId:
+          type: integer
+          format: int64
+      required:
+        - title
+        - userId
+
+    Category:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int64
+        categoryName:
+          type: string
+          maxLength: 100
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - categoryName
+
+    ServiceRegion:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        regionName:
+          type: string
+          maxLength: 100
+        regionCode:
+          type: string
+          maxLength: 20
+        streamingServerUrl:
+          type: string
+        cdnEndpoint:
+          type: string
+        maxBandwidth:
+          type: integer
+        contentPolicyId:
+          type: integer
+          format: int64
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - regionName
+        - regionCode
+
+    Video:
+      type: object
+      properties:
+        videoId:
+          type: integer
+          format: int64
+        videoLength:
+          type: string
+          maxLength: 20
+        encodingType:
+          type: string
+          maxLength: 50
+        videoPath:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        resolution:
+          type: string
+          maxLength: 20
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - videoPath
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
