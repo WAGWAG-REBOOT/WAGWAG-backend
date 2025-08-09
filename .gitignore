@@ -40,3 +40,6 @@ build/
 .cursorignore
 *.cursor-*
 .cursor-*
+
+### Claude Code ###
+CLAUDE.md
