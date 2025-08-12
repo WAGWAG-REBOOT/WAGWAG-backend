@@ -185,16 +185,17 @@ paths:
       responses:
         '201':
           description: Post created successfully
-  /api/posts/{id}:
+  /api/posts/{user_id}:
     get:
       tags:
         - post
-      summary: "GET api/posts/{id}"
-      operationId: "getPostById"
+      summary: "GET api/posts/{user_id}"
+      operationId: "getPostsByUserId"
       parameters:
-        - name: "id"
+        - name: "user_id"
           in: "path"
           required: true
+          description: "User ID to get posts for"
           schema:
             type: "integer"
             format: "int64"
@@ -202,18 +203,21 @@ paths:
         "200":
           description: "OK"
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: "#/components/schemas/Post"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
     put:
       tags:
         - post
-      summary: "PUT api/posts/{id}"
-      operationId: "updatePost"
+      summary: "PUT api/posts/{user_id}"
+      operationId: "updatePostsByUserId"
       parameters:
-        - name: "id"
+        - name: "user_id"
           in: "path"
           required: true
+          description: "User ID to update posts for"
           schema:
             type: "integer"
             format: "int64"
@@ -227,24 +231,99 @@ paths:
         "200":
           description: "OK"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/Post"
     delete:
       tags:
         - post
-      summary: "DELETE api/posts/{id}"
-      operationId: "deletePost"
+      summary: "DELETE api/posts/{user_id}"
+      operationId: "deletePostsByUserId"
       parameters:
-        - name: "id"
+        - name: "user_id"
           in: "path"
           required: true
+          description: "User ID to delete posts for"
           schema:
             type: "integer"
             format: "int64"
       responses:
         "200":
           description: "OK"
+
+  /api/posts/by-post-id/{post_id}:
+    get:
+      tags:
+        - post
+      summary: "Get post by post_id"
+      operationId: "getPostByPostId"
+      parameters:
+        - name: "post_id"
+          in: "path"
+          required: true
+          description: "Post ID from database"
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "Post retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: "Post not found"
+    put:
+      tags:
+        - post
+      summary: "Update post by post_id"
+      operationId: "updatePostByPostId"
+      parameters:
+        - name: "post_id"
+          in: "path"
+          required: true
+          description: "Post ID from database"
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        description: "Updated post data"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Post"
+        required: true
+      responses:
+        "200":
+          description: "Post updated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: "Post not found"
+        "400":
+          description: "Invalid input data"
+    delete:
+      tags:
+        - post
+      summary: "Delete post by post_id"
+      operationId: "deletePostByPostId"
+      parameters:
+        - name: "post_id"
+          in: "path"
+          required: true
+          description: "Post ID from database"
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "Post deleted successfully"
+        "404":
+          description: "Post not found"
+
   /api/region/{region-id}:
     get:
       tags:
