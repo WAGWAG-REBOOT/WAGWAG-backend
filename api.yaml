@@ -366,6 +366,710 @@ paths:
               schema:
                 $ref: "#/components/schemas/Post"
 
+  # 2. 동네 올라온 영상/오늘 - Post 엔티티의 createdAt 기반 오늘 업로드된 영상 개수
+  /api/posts/count/today:
+    get:
+      tags:
+        - post
+      summary: "Get today's post count"
+      description: "Post 엔티티의 createdAt 필드를 기준으로 오늘 업로드된 영상 개수를 반환. 상단바 '오늘 올라온 영상 43개' 표시용"
+      operationId: "getTodayPostCount"
+      parameters:
+        - name: "regionId"
+          in: "query"
+          required: false
+          description: "Filter by region ID (Post.regionId 기반 지역 필터링)"
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "Today's post count retrieved successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: "Number of posts uploaded today in the region"
+                    example: 43
+
+  # 4. 동네 키워드 상위 10개 - Post.title에서 키워드 추출하여 인기순 정렬
+  /api/posts/keywords/trending:
+    get:
+      tags:
+        - post
+      summary: "Get trending keywords from post titles"
+      description: "Post 엔티티의 title 필드에서 키워드를 추출하여 지역별 인기 키워드 상위 10개 반환"
+      operationId: "getTrendingKeywords"
+      parameters:
+        - name: "regionId"
+          in: "query"
+          required: false
+          description: "Filter by region ID (Post.regionId 기반)"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "limit"
+          in: "query"
+          required: false
+          description: "Number of keywords to return (default: 10)"
+          schema:
+            type: "integer"
+            default: 10
+      responses:
+        "200":
+          description: "Trending keywords retrieved"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keywords:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        keyword:
+                          type: string
+                          description: "The trending keyword extracted from post titles"
+                          example: "#마포원"
+                        count:
+                          type: integer
+                          description: "Usage count in post titles"
+                          example: 15
+
+  # 5. 동네 인기 검색어 상위 10개 - 검색 로그 기반 인기 검색어
+  /api/posts/search/trending:
+    get:
+      tags:
+        - post
+      summary: "Get trending search terms"
+      description: "사용자들의 검색 기록을 기반으로 지역별 인기 검색어 상위 10개 반환"
+      operationId: "getTrendingSearches"
+      parameters:
+        - name: "regionId"
+          in: "query"
+          required: false
+          description: "Filter by region ID"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "limit"
+          in: "query"
+          required: false
+          description: "Number of search terms to return (default: 10)"
+          schema:
+            type: "integer"
+            default: 10
+      responses:
+        "200":
+          description: "Trending searches retrieved"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trendingSearches:
+                    type: array
+                    description: "상단바에 표시될 인기 검색어 목록 (예: 인기글 4 · 어제 밤 우리시에서 여기가 대박됨)"
+                    items:
+                      type: object
+                      properties:
+                        searchTerm:
+                          type: string
+                          description: "The trending search term"
+                          example: "인기글"
+                        searchCount:
+                          type: integer
+                          description: "Number of times searched"
+                          example: 4
+                        description:
+                          type: string
+                          description: "Additional context or trending reason"
+                          example: "어제 밤 우리시에서 여기가 대박됨"
+
+  # UI 인기와글 섹션 - 지역별 인기 게시물 상위 10개 (조회수, 좋아요 기준)
+  /api/popular_post/{region_id}:
+    get:
+      tags:
+        - post
+      summary: "Get popular posts in region"
+      description: "지역별 인기 게시물 상위 10개. Post 엔티티의 viewCnt, Like 엔티티 count 기준 정렬"
+      operationId: "getPopularPosts"
+      parameters:
+        - name: "region_id"
+          in: "path"
+          required: true
+          description: "Region ID (Post.regionId 기준)"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "limit"
+          in: "query"
+          required: false
+          description: "Number of posts to return (default: 10)"
+          schema:
+            type: "integer"
+            default: 10
+      responses:
+        "200":
+          description: "Popular posts retrieved"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        postId:
+                          type: integer
+                          format: int64
+                          description: "Post ID"
+                          example: 12345
+                        title:
+                          type: string
+                          description: "Post title"
+                          example: "대전의회원의 일상이 마법같이 인..."
+                        userName:
+                          type: string
+                          description: "User name from User entity"
+                          example: "SONNN"
+                        videoId:
+                          type: integer
+                          format: int64
+                          description: "Video ID (Post.videoId)"
+                          example: 67890
+                        viewCount:
+                          type: integer
+                          description: "View count (Post.viewCnt)"
+                          example: 12600
+                        likeCount:
+                          type: integer
+                          description: "Like count from Like entity"
+                          example: 1800
+
+  # UI 실시간와글 섹션 - 지역별 실시간 게시물 상위 10개 (최신순 정렬)
+  /api/realtime_post/{region_id}:
+    get:
+      tags:
+        - post
+      summary: "Get realtime posts in region"
+      description: "지역별 실시간 게시물 상위 10개. Post 엔티티의 createdAt 기준 최신순 정렬"
+      operationId: "getRealtimePosts"
+      parameters:
+        - name: "region_id"
+          in: "path"
+          required: true
+          description: "Region ID (Post.regionId 기준)"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "limit"
+          in: "query"
+          required: false
+          description: "Number of posts to return (default: 10)"
+          schema:
+            type: "integer"
+            default: 10
+      responses:
+        "200":
+          description: "Realtime posts retrieved"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        postId:
+                          type: integer
+                          format: int64
+                          description: "Post ID"
+                          example: 54321
+                        title:
+                          type: string
+                          description: "Post title"
+                          example: "요즘이지상 여기가 아하고 제일 좋음"
+                        userName:
+                          type: string
+                          description: "User name from User entity"
+                          example: "YUMJU"
+                        videoId:
+                          type: integer
+                          format: int64
+                          description: "Video ID (Post.videoId)"
+                          example: 98765
+                        viewCount:
+                          type: integer
+                          description: "View count (Post.viewCnt)"
+                          example: 2300
+                        likeCount:
+                          type: integer
+                          description: "Like count from Like entity"
+                          example: 320
+
+  # UI 릴스 카테고리 탭 - 유저 선호 카테고리 목록 (전체, 운동, 뷰티, 일상생활, 개인, 출산, 산책, 노래, 타 지역 인기 하트)
+  /api/{user-id}/user_prefered:
+    get:
+      tags:
+        - user
+        - category
+      summary: "Get user preferred categories"
+      description: "유저가 선호하는 카테고리 목록. Category 엔티티 기반으로 사용자 맞춤 카테고리 반환"
+      operationId: "getUserPreferredCategories"
+      parameters:
+        - name: "user-id"
+          in: "path"
+          required: true
+          description: "User ID"
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "User preferred categories retrieved"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        categoryId:
+                          type: integer
+                          format: int64
+                          description: "Category ID from Category entity"
+                          example: 1
+                        categoryName:
+                          type: string
+                          description: "Category name (전체, 운동, 뷰티, 일상생활 등)"
+                          example: "전체"
+                        isDefault:
+                          type: boolean
+                          description: "Whether this is default selected category"
+                          example: true
+
+  # UI 릴스 피드 - 카테고리별 게시물 목록 (표준 페이징으로 무한스크롤 지원)
+  /api/posts/category/{category-id}:
+    get:
+      tags:
+        - post
+        - category
+      summary: "Get posts by category with pagination"
+      description: "카테고리별 게시물 목록. Post, Category 엔티티 기반. 릴스 형태로 조회수/좋아요수/공유수/타이틀/userId 반환"
+      operationId: "getPostsByCategory"
+      parameters:
+        - name: "category-id"
+          in: "path"
+          required: true
+          description: "Category ID (Category.categoryId 기준)"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "page"
+          in: "query"
+          required: false
+          description: "Page number (0-based, default: 0)"
+          schema:
+            type: "integer"
+            minimum: 0
+            default: 0
+        - name: "size"
+          in: "query"
+          required: false
+          description: "Page size (default: 20)"
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: "sort"
+          in: "query"
+          required: false
+          description: "Sort criteria (createdAt,desc | viewCnt,desc | likeCount,desc)"
+          schema:
+            type: "string"
+            default: "createdAt,desc"
+      responses:
+        "200":
+          description: "Posts retrieved by category with pagination info"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    description: "Page content"
+                    items:
+                      type: object
+                      properties:
+                        postId:
+                          type: integer
+                          format: int64
+                          description: "Post ID"
+                          example: 67890
+                        title:
+                          type: string
+                          description: "Post title"
+                          example: "가다어떤 2번승강 타더보니 이랬게 좋다..."
+                        userId:
+                          type: integer
+                          format: int64
+                          description: "User ID (Post.userId)"
+                          example: 12345
+                        videoId:
+                          type: integer
+                          format: int64
+                          description: "Video ID (Post.videoId)"
+                          example: 11111
+                        viewCount:
+                          type: integer
+                          description: "View count (Post.viewCnt)"
+                          example: 3200
+                        likeCount:
+                          type: integer
+                          description: "Like count from Like entity"
+                          example: 1800
+                        shareCount:
+                          type: integer
+                          description: "Share count (Post.shareCnt)"
+                          example: 37
+                  pageable:
+                    type: object
+                    description: "Pagination info"
+                    properties:
+                      page:
+                        type: integer
+                        example: 0
+                      size:
+                        type: integer
+                        example: 20
+                      totalElements:
+                        type: integer
+                        example: 150
+                      totalPages:
+                        type: integer
+                        example: 8
+                      first:
+                        type: boolean
+                        example: true
+                      last:
+                        type: boolean
+                        example: false
+
+  # UI 좋아요 기능 - Like 엔티티 기반 좋아요 추가/제거
+  /api/posts/{post-id}/like:
+    post:
+      tags:
+        - post
+        - like
+      summary: "Like a post"
+      description: "게시물 좋아요. Like 엔티티에 새로운 레코드 생성. 릴스 하단 하트 버튼 클릭 시 사용"
+      operationId: "likePost"
+      parameters:
+        - name: "post-id"
+          in: "path"
+          required: true
+          description: "Post ID (Post.postId)"
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  format: int64
+                  description: "User ID who likes the post"
+                  example: 12345
+      responses:
+        "200":
+          description: "Post liked successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  likeCount:
+                    type: integer
+                    description: "Updated like count"
+                    example: 1801
+        "409":
+          description: "Already liked by this user"
+
+    delete:
+      tags:
+        - post
+        - like
+      summary: "Unlike a post"
+      description: "게시물 좋아요 취소. Like 엔티티에서 해당 레코드 삭제. 릴스 하단 하트 버튼 재클릭 시 사용"
+      operationId: "unlikePost"
+      parameters:
+        - name: "post-id"
+          in: "path"
+          required: true
+          description: "Post ID (Post.postId)"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "userId"
+          in: "query"
+          required: true
+          description: "User ID who unlikes the post"
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "Post unliked successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  likeCount:
+                    type: integer
+                    description: "Updated like count"
+                    example: 1799
+        "404":
+          description: "Like not found"
+
+  # UI 동영상 업로드 - 새 게시물 생성 (Post 엔티티 기반)
+  /api/posts/upload:
+    post:
+      tags:
+        - post
+        - upload
+      summary: "Upload new video post"
+      description: "동영상 업로드 UI를 통한 새 게시물 생성. Post, Video 엔티티에 데이터 저장"
+      operationId: "uploadVideoPost"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 40
+                  description: "Post title (최대 40자)"
+                  example: "대현문화공원 안에 버스킹 실력자"
+                description:
+                  type: string
+                  maxLength: 180
+                  description: "Post description (최대 180자)"
+                  example: "시청자에게 이 와글에 대해 설명해 주세요 이렇게 치는겁니다"
+                videoFile:
+                  type: string
+                  format: binary
+                  description: "Video file to upload"
+                userId:
+                  type: integer
+                  format: int64
+                  description: "User ID who uploads the post"
+                  example: 12345
+                regionId:
+                  type: integer
+                  format: int64
+                  description: "Region ID where the post is uploaded"
+                  example: 1
+                accessStatus:
+                  type: integer
+                  description: "Access status (0: private, 1: public)"
+                  example: 1
+                  default: 1
+              required:
+                - title
+                - videoFile
+                - userId
+                - regionId
+      responses:
+        "201":
+          description: "Video post uploaded successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  postId:
+                    type: integer
+                    format: int64
+                    description: "Created post ID"
+                    example: 67890
+                  videoId:
+                    type: integer
+                    format: int64
+                    description: "Created video ID"
+                    example: 11111
+                  message:
+                    type: string
+                    example: "동영상이 성공적으로 업로드되었습니다"
+        "400":
+          description: "Invalid input data"
+        "413":
+          description: "File too large"
+        "415":
+          description: "Unsupported file type"
+
+  # UI 위치 검색 - GPS 좌표 기반으로 지역 정보 찾기
+  /api/location/find-by-geo-coordinate:
+    get:
+      tags:
+        - location
+      summary: "Find location by GPS coordinates"
+      description: "GPS 좌표를 기반으로 지역 정보 검색. ' 현재 위치로 찾기' 버튼 클릭 시 사용"
+      operationId: "findLocationByCoordinates"
+      parameters:
+        - name: "latitude"
+          in: "query"
+          required: true
+          description: "위도 (Latitude)"
+          schema:
+            type: "number"
+            format: "double"
+            example: 37.5665
+        - name: "longitude"
+          in: "query" 
+          required: true
+          description: "경도 (Longitude)"
+          schema:
+            type: "number"
+            format: "double"
+            example: 126.9780
+      responses:
+        "200":
+          description: "Location found successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  location:
+                    type: object
+                    properties:
+                      regionId:
+                        type: integer
+                        format: int64
+                        description: "Region ID from ServiceRegion"
+                        example: 1
+                      regionName:
+                        type: string
+                        description: "지역명"
+                        example: "서울 강남구 개포동"
+                      dongCode:
+                        type: string
+                        description: "동 코드"
+                        example: "11680105"
+                      address:
+                        type: string
+                        description: "상세 주소"
+                        example: "서울특별시 강남구 개포동"
+        "400":
+          description: "Invalid coordinates"
+        "404":
+          description: "Location not found"
+
+  # UI 사용자 위치 업데이트 - 확인 버튼 클릭 시 User 엔티티 dongCode 갱신
+  /api/user/{userid}/location:
+    put:
+      tags:
+        - user
+        - location
+      summary: "Update user location"
+      description: "사용자 위치 정보 업데이트. 확인 버튼 클릭 시 User.dongCode 필드 갱신"
+      operationId: "updateUserLocation"
+      parameters:
+        - name: "userid"
+          in: "path"
+          required: true
+          description: "User ID"
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dongCode:
+                  type: string
+                  description: "동 코드 (User.dongCode 필드 업데이트)"
+                  example: "11680105"
+                regionId:
+                  type: integer
+                  format: int64
+                  description: "지역 ID (참조용)"
+                  example: 1
+                regionName:
+                  type: string
+                  description: "지역명 (참조용)"
+                  example: "서울 강남구 개포동"
+              required:
+                - dongCode
+      responses:
+        "200":
+          description: "User location updated successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "위치가 성공적으로 업데이트되었습니다"
+                  updatedLocation:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        format: int64
+                        example: 12345
+                      dongCode:
+                        type: string
+                        example: "11680105"
+                      regionName:
+                        type: string
+                        example: "서울 강남구 개포동"
+        "400":
+          description: "Invalid input data"
+        "404":
+          description: "User not found"
+
+
 
 components:
   schemas:
