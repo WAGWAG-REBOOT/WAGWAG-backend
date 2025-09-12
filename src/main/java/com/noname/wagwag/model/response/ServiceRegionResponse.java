@@ -1,6 +1,6 @@
 package com.noname.wagwag.model.response;
 
-import com.wagwag.Serviceregion;
+import com.noname.wagwag.repository.entity.ServiceRegion;
 import lombok.Data;
 
 import java.time.Instant;
@@ -19,7 +19,7 @@ public class ServiceRegionResponse {
     private Instant createdAt;
     private Instant updatedAt;
     
-    public static ServiceRegionResponse from(Serviceregion serviceregion) {
+    public static ServiceRegionResponse from(ServiceRegion serviceregion) {
         ServiceRegionResponse response = new ServiceRegionResponse();
         response.setId(serviceregion.getId());
         response.setRegionName(serviceregion.getRegionName());
