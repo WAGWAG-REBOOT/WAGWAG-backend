@@ -1,9 +1,14 @@
-package com.wagwag;
+package com.noname.wagwag.repository.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
+
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
@@ -11,9 +16,13 @@ import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
-public class LikeId implements java.io.Serializable {
+public class LikeId implements Serializable {
+    @Serial
     private static final long serialVersionUID = -7103338195010069719L;
+
     @Column(name = "post_id")
     private Long postId;
 
