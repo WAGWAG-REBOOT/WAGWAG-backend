@@ -1,7 +1,6 @@
-// src/main/java/com/noname/wagwag/controller/UserController.java
 package com.noname.wagwag.controller;
 
-import com.noname.wagwag.model.response.NicknameValidationResponse;   // ✅ 외부 DTO import
+import com.noname.wagwag.model.response.NicknameValidationResponse;
 import com.noname.wagwag.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
