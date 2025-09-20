@@ -1,10 +1,10 @@
-package com.noname.wagwag.controller;
+package com.noname.wagwag.post.controller;
 
 import com.noname.wagwag.model.request.CreatePostRequest;
 import com.noname.wagwag.model.request.UpdatePostRequest;
 import com.noname.wagwag.model.response.PostListResponse;
 import com.noname.wagwag.model.response.PostResponse;
-import com.noname.wagwag.service.PostService;
+import com.noname.wagwag.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * 게시물 작업을 위한 RESTful API 컨트롤러
- * 
+ *
  * 엔드포인트:
  * 1. GET /api/posts - 페이징과 함께 모든 게시물 조회
  * 2. GET /api/posts/{id} - ID로 특정 게시물 조회
@@ -34,9 +34,9 @@ import java.util.List;
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
-    
+
     private final PostService postService;
-    
+
     /**
      * 모든 게시물 조회
      * GET /api/posts?page=0&size=10
@@ -45,12 +45,12 @@ public class PostController {
     public ResponseEntity<PostListResponse> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Page<PostResponse> posts = postService.getAllPosts(page, size);
         PostListResponse response = PostListResponse.from(posts);
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * ID로 특정 게시물 조회
      * GET /api/posts/{id}
@@ -60,7 +60,7 @@ public class PostController {
         PostResponse post = postService.getPost(id);
         return ResponseEntity.ok(post);
     }
-    
+
     /**
      * 새 게시물 생성
      * POST /api/posts
@@ -70,7 +70,7 @@ public class PostController {
         PostResponse post = postService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(post);
     }
-    
+
     /**
      * 기존 게시물 수정
      * PUT /api/posts/{id}
@@ -79,11 +79,11 @@ public class PostController {
     public ResponseEntity<PostResponse> updatePost(
             @PathVariable Long id,
             @Valid @RequestBody UpdatePostRequest request) {
-        
+
         PostResponse post = postService.updatePost(id, request);
         return ResponseEntity.ok(post);
     }
-    
+
     /**
      * 게시물 삭제
      * DELETE /api/posts/{id}
@@ -93,7 +93,7 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
-    
+
     /**
      * 사용자별 게시물 조회
      * GET /api/posts/user/{userId}
@@ -104,7 +104,7 @@ public class PostController {
             @PathVariable Long userId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        
+
         if (page != null && size != null) {
             Page<PostResponse> posts = postService.getPostsByUser(userId, page, size);
             PostListResponse response = PostListResponse.from(posts);
@@ -114,7 +114,7 @@ public class PostController {
             return ResponseEntity.ok(posts);
         }
     }
-    
+
     /**
      * 지역별 게시물 조회
      * GET /api/posts/region/{regionId}
@@ -124,7 +124,7 @@ public class PostController {
         List<PostResponse> posts = postService.getPostsByRegion(regionId);
         return ResponseEntity.ok(posts);
     }
-    
+
     /**
      * 제목으로 게시물 검색
      * GET /api/posts/search?keyword=searchterm
@@ -134,7 +134,7 @@ public class PostController {
         List<PostResponse> posts = postService.searchPosts(keyword);
         return ResponseEntity.ok(posts);
     }
-    
+
     /**
      * 조회수 기준 인기 게시물 조회
      * GET /api/posts/top?page=0&size=10
@@ -143,12 +143,12 @@ public class PostController {
     public ResponseEntity<PostListResponse> getTopPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Page<PostResponse> posts = postService.getTopPosts(page, size);
         PostListResponse response = PostListResponse.from(posts);
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * 공유 수 증가
      * POST /api/posts/{id}/share
@@ -158,7 +158,7 @@ public class PostController {
         postService.incrementShareCount(id);
         return ResponseEntity.ok().build();
     }
-    
+
     /**
      * 사용자별 게시물 수 조회
      * GET /api/posts/user/{userId}/count

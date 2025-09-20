@@ -1,10 +1,10 @@
-package com.noname.wagwag.service;
+package com.noname.wagwag.post.service;
 
 import com.noname.wagwag.model.request.CreatePostRequest;
 import com.noname.wagwag.model.request.UpdatePostRequest;
 import com.noname.wagwag.model.response.PostResponse;
-import com.noname.wagwag.repository.PostRepository;
-import com.wagwag.Post;
+import com.noname.wagwag.post.repository.PostRepository;
+import com.noname.wagwag.post.repository.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

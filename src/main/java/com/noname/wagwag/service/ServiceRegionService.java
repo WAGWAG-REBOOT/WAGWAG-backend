@@ -3,7 +3,7 @@ package com.noname.wagwag.service;
 import com.noname.wagwag.model.response.PostResponse;
 import com.noname.wagwag.model.response.ServiceRegionResponse;
 import com.noname.wagwag.repository.ServiceRegionRepository;
-import com.noname.wagwag.service.PostService;
+import com.noname.wagwag.post.service.PostService;
 import com.wagwag.Serviceregion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.wagwag;
+package com.noname.wagwag.post.repository.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
