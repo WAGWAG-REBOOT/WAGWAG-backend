@@ -2,41 +2,54 @@ package com.noname.wagwag.post.service;
 
 import com.noname.wagwag.model.request.CreatePostRequest;
 import com.noname.wagwag.model.request.UpdatePostRequest;
+import com.noname.wagwag.model.response.PopularPostResponse;
 import com.noname.wagwag.model.response.PostResponse;
 import com.noname.wagwag.post.repository.PostRepository;
-import com.noname.wagwag.post.repository.entity.Post;
+import com.noname.wagwag.model.response.PostWithLikeCountDto;
+import com.noname.wagwag.repository.PostCategoryRepository;
+import com.noname.wagwag.repository.LikeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostService {
     
     private final PostRepository postRepository;
+    private final PostCategoryRepository postCategoryRepository;
+    private final LikeRepository likeRepository;
     
     @Transactional
     public PostResponse createPost(CreatePostRequest request) {
-        Post post = new Post();
-        post.setTitle(request.getTitle());
-        post.setThumbnail(request.getThumbnail());
-        post.setUserId(request.getUserId());
-        post.setVideoId(request.getVideoId());
-        post.setRegionId(request.getRegionId());
-        post.setAccessStatus(request.getAccessStatus());
-        post.setCreatedAt(Instant.now());
-        post.setUpdatedAt(Instant.now());
-        post.setViewCnt(0);
-        post.setShareCnt(0);
-        
+        Post post = Post.builder()
+                .title(request.getTitle())
+                .thumbnail(request.getThumbnail())
+                .userId(request.getUserId())
+                .videoId(request.getVideoId())
+                .regionId(request.getRegionId())
+                .accessStatus(request.getAccessStatus())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .viewCnt(0)
+                .shareCnt(0)
+                .build();
+
+
         Post savedPost = postRepository.save(post);
         return PostResponse.from(savedPost);
     }
@@ -144,5 +157,110 @@ public class PostService {
     
     public long getPostCountByUser(Long userId) {
         return postRepository.countByUserId(userId);
+    }
+    
+    // 카테고리별 포스트 조회 (페이징)
+    public Page<Map<String, Object>> getPostsByCategory(Long categoryId, int page, int size, String sort) {
+        log.info("Getting posts by category: {} with page: {}, size: {}, sort: {}", categoryId, page, size, sort);
+        
+        // 정렬 설정
+        Sort sortBy = createSort(sort);
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+        
+        // 카테고리에 속한 postId들 조회
+        List<Long> postIds = postCategoryRepository.findPostIdsByCategoryId(categoryId);
+        
+        if (postIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        
+        // postId로 Post들 조회
+        Page<Post> posts = postRepository.findByPostIdInOrderByCreatedAtDesc(postIds, pageable);
+        
+        // 좋아요 수 포함한 응답 생성
+        return posts.map(post -> {
+            Integer likeCount = likeRepository.countByPostId(post.getPostId());
+            return Map.of(
+                    "postId", post.getPostId(),
+                    "title", post.getTitle(),
+                    "userId", post.getUserId(),
+                    "videoId", post.getVideoId(),
+                    "viewCount", post.getViewCnt() != null ? post.getViewCnt() : 0,
+                    "likeCount", likeCount != null ? likeCount : 0,
+                    "shareCount", post.getShareCnt() != null ? post.getShareCnt() : 0
+            );
+        });
+    }
+    
+    // 인기 포스트 조회 (지역별) - 개선된 버전
+    public List<PopularPostResponse> getPopularPosts(Long regionId, int limit) {
+        log.info("Getting popular posts for region: {} with limit: {}", regionId, limit);
+        
+        Pageable pageable = PageRequest.of(0, limit);
+        List<PostWithLikeCountDto> posts = postRepository.findPopularPostsByRegionWithLikeCount(regionId, pageable);
+        
+        return posts.stream()
+                .map(post -> PopularPostResponse.builder()
+                        .postId(post.getPostId())
+                        .title(post.getTitle())
+                        .userName(post.getUserName() != null ? post.getUserName() : "USER_" + post.getPostId())
+                        .videoId(post.getVideoId())
+                        .viewCount(post.getViewCount() != null ? post.getViewCount() : 0)
+                        .likeCount(post.getLikeCount() != null ? post.getLikeCount() : 0)
+                        .build())
+                .collect(Collectors.toList());
+    }
+    
+    // 실시간 포스트 조회 (지역별, 최신순) - 개선된 버전
+    public List<PopularPostResponse> getRealtimePosts(Long regionId, int limit) {
+        log.info("Getting realtime posts for region: {} with limit: {}", regionId, limit);
+        
+        Pageable pageable = PageRequest.of(0, limit);
+        List<PostWithLikeCountDto> posts = postRepository.findRealtimePostsByRegionWithLikeCount(regionId, pageable);
+        
+        return posts.stream()
+                .map(post -> PopularPostResponse.builder()
+                        .postId(post.getPostId())
+                        .title(post.getTitle())
+                        .userName(post.getUserName() != null ? post.getUserName() : "USER_" + post.getPostId())
+                        .videoId(post.getVideoId())
+                        .viewCount(post.getViewCount() != null ? post.getViewCount() : 0)
+                        .likeCount(post.getLikeCount() != null ? post.getLikeCount() : 0)
+                        .build())
+                .collect(Collectors.toList());
+    }
+    
+    // 오늘 업로드된 포스트 수 조회
+    public Map<String, Integer> getTodayPostCount(Long regionId) {
+        log.info("Getting today's post count for region: {}", regionId);
+        
+        Instant startOfDay = LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant endOfDay = LocalDate.now().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        
+        int count;
+        if (regionId != null) {
+            count = postRepository.countByRegionIdAndCreatedAtBetween(regionId, startOfDay, endOfDay);
+        } else {
+            count = postRepository.countByCreatedAtBetween(startOfDay, endOfDay);
+        }
+        
+        return Map.of("count", count);
+    }
+    
+    private Sort createSort(String sort) {
+        if (sort == null || sort.isEmpty()) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+        
+        String[] sortParams = sort.split(",");
+        if (sortParams.length == 2) {
+            String property = sortParams[0];
+            String direction = sortParams[1];
+            Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? 
+                    Sort.Direction.ASC : Sort.Direction.DESC;
+            return Sort.by(sortDirection, property);
+        }
+        
+        return Sort.by(Sort.Direction.DESC, "createdAt");
     }
 }

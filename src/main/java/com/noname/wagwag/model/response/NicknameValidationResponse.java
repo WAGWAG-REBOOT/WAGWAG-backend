@@ -9,4 +9,8 @@ import lombok.Getter;
  * "isExist": true | false
  * }
  */
-public record NicknameValidationResponse(boolean isExist) {}
+@Getter
+@AllArgsConstructor
+public class NicknameValidationResponse {
+    private final boolean isExist;
+}

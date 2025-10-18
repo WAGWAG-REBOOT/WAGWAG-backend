@@ -4,7 +4,7 @@ import com.noname.wagwag.model.request.CreateAddressRequest;
 import com.noname.wagwag.model.request.UpdateAddressRequest;
 import com.noname.wagwag.model.response.AddressResponse;
 import com.noname.wagwag.repository.AddressRepository;
-import com.wagwag.Address;
+import com.noname.wagwag.repository.entity.Address;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +26,14 @@ public class AddressService {
             throw new RuntimeException("Address already exists with cityId: " + request.getCityId() 
                     + " and districtId: " + request.getDistrictId());
         }
-        
-        Address address = new Address();
-        address.setCityId(request.getCityId());
-        address.setDistrictId(request.getDistrictId());
-        address.setPostalCode(request.getPostalCode());
-        address.setCreatedAt(Instant.now());
-        address.setUpdatedAt(Instant.now());
+
+        Address address = Address.builder()
+                .cityId(request.getCityId())
+                .districtId(request.getDistrictId())
+                .postalCode(request.getPostalCode())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build();
         
         Address savedAddress = addressRepository.save(address);
         return AddressResponse.from(savedAddress);

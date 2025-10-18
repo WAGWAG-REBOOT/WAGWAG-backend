@@ -2,6 +2,7 @@ package com.noname.wagwag.post.controller;
 
 import com.noname.wagwag.model.request.CreatePostRequest;
 import com.noname.wagwag.model.request.UpdatePostRequest;
+import com.noname.wagwag.model.response.PopularPostResponse;
 import com.noname.wagwag.model.response.PostListResponse;
 import com.noname.wagwag.model.response.PostResponse;
 import com.noname.wagwag.post.service.PostService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 게시물 작업을 위한 RESTful API 컨트롤러
@@ -29,6 +31,10 @@ import java.util.List;
  * 9. GET /api/posts/top - 조회수 기준 인기 게시물 조회
  * 10. POST /api/posts/{id}/share - 공유 수 증가
  * 11. GET /api/posts/user/{userId}/count - 사용자별 게시물 수 조회
+ * 12. GET /api/posts/category/{category-id} - 카테고리별 포스트 조회 (페이징)
+ * 13. GET /api/popular_post/{region_id} - 지역별 인기 포스트
+ * 14. GET /api/realtime_post/{region_id} - 지역별 실시간 포스트
+ * 15. GET /api/posts/count/today - 오늘 업로드된 포스트 수
  */
 @RestController
 @RequestMapping("/api/posts")
@@ -167,5 +173,80 @@ public class PostController {
     public ResponseEntity<Long> getPostCountByUser(@PathVariable Long userId) {
         long count = postService.getPostCountByUser(userId);
         return ResponseEntity.ok(count);
+    }
+    
+    /**
+     * 카테고리별 포스트 조회 (페이징)
+     * GET /api/posts/category/{category-id}?page=0&size=20&sort=createdAt,desc
+     */
+    @GetMapping("/category/{category-id}")
+    public ResponseEntity<Map<String, Object>> getPostsByCategory(
+            @PathVariable("category-id") Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort) {
+        
+        Page<Map<String, Object>> posts = postService.getPostsByCategory(categoryId, page, size, sort);
+        
+        return ResponseEntity.ok(Map.of(
+                "content", posts.getContent(),
+                "pageable", Map.of(
+                        "page", posts.getNumber(),
+                        "size", posts.getSize(),
+                        "totalElements", posts.getTotalElements(),
+                        "totalPages", posts.getTotalPages(),
+                        "first", posts.isFirst(),
+                        "last", posts.isLast()
+                )
+        ));
+    }
+    
+    /**
+     * 오늘 업로드된 포스트 수 조회
+     * GET /api/posts/count/today?regionId=1
+     */
+    @GetMapping("/count/today")
+    public ResponseEntity<Map<String, Integer>> getTodayPostCount(
+            @RequestParam(required = false) Long regionId) {
+        
+        Map<String, Integer> result = postService.getTodayPostCount(regionId);
+        return ResponseEntity.ok(result);
+    }
+}
+
+/**
+ * 별도 엔드포인트들 (다른 경로)
+ */
+@RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
+class RegionalPostController {
+    
+    private final PostService postService;
+    
+    /**
+     * 지역별 인기 포스트 조회
+     * GET /api/popular_post/{region_id}?limit=10
+     */
+    @GetMapping("/popular_post/{region_id}")
+    public ResponseEntity<List<PopularPostResponse>> getPopularPosts(
+            @PathVariable("region_id") Long regionId,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        List<PopularPostResponse> result = postService.getPopularPosts(regionId, limit);
+        return ResponseEntity.ok(result);
+    }
+    
+    /**
+     * 지역별 실시간 포스트 조회
+     * GET /api/realtime_post/{region_id}?limit=10
+     */
+    @GetMapping("/realtime_post/{region_id}")
+    public ResponseEntity<List<PopularPostResponse>> getRealtimePosts(
+            @PathVariable("region_id") Long regionId,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        List<PopularPostResponse> result = postService.getRealtimePosts(regionId, limit);
+        return ResponseEntity.ok(result);
     }
 }

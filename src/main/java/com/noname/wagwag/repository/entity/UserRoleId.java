@@ -7,6 +7,7 @@ import lombok.*;
 import java.io.Serializable;
 
 @Embeddable
+@Builder
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class UserRoleId implements Serializable {
 

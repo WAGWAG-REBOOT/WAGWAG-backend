@@ -185,71 +185,48 @@ paths:
       responses:
         '201':
           description: Post created successfully
-  /api/posts/{user_id}:
+
+  /api/posts/user:
     get:
       tags:
         - post
-      summary: "GET api/posts/{user_id}"
-      operationId: "getPostsByUserId"
-      parameters:
-        - name: "user_id"
-          in: "path"
-          required: true
-          description: "User ID to get posts for"
-          schema:
-            type: "integer"
-            format: "int64"
+      summary: "Get authenticated user's posts"
+      operationId: "getUserPosts"
+      description: "Get posts for authenticated user. User ID extracted from JWT token."
       responses:
         "200":
-          description: "OK"
+          description: "User's posts retrieved successfully"
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Post"
-    put:
-      tags:
-        - post
-      summary: "PUT api/posts/{user_id}"
-      operationId: "updatePostsByUserId"
-      parameters:
-        - name: "user_id"
-          in: "path"
-          required: true
-          description: "User ID to update posts for"
-          schema:
-            type: "integer"
-            format: "int64"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Post"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Post"
+    
     delete:
       tags:
         - post
-      summary: "DELETE api/posts/{user_id}"
-      operationId: "deletePostsByUserId"
-      parameters:
-        - name: "user_id"
-          in: "path"
-          required: true
-          description: "User ID to delete posts for"
-          schema:
-            type: "integer"
-            format: "int64"
+      summary: "Delete authenticated user's posts"
+      operationId: "deleteUserPosts"
+      description: "Delete all posts for authenticated user. User ID extracted from JWT token."
       responses:
         "200":
-          description: "OK"
+          description: "User's posts deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "All posts deleted successfully"
+                  deletedCount:
+                    type: integer
+                    description: "Number of posts deleted"
+                    example: 5
 
   /api/posts/by-post-id/{post_id}:
     get:
@@ -770,22 +747,14 @@ paths:
                         example: false
 
   # UI 좋아요 기능 - Like 엔티티 기반 좋아요 추가/제거
-  /api/posts/{post-id}/like:
+  /api/posts/like:
     post:
       tags:
         - post
         - like
       summary: "Like a post"
-      description: "게시물 좋아요. Like 엔티티에 새로운 레코드 생성. 릴스 하단 하트 버튼 클릭 시 사용"
+      description: "게시물 좋아요. Like 엔티티에 새로운 레코드 생성. 릴스 하단 하트 버튼 클릭 시 사용. User ID는 JWT 토큰에서 추출됨"
       operationId: "likePost"
-      parameters:
-        - name: "post-id"
-          in: "path"
-          required: true
-          description: "Post ID (Post.postId)"
-          schema:
-            type: "integer"
-            format: "int64"
       requestBody:
         required: true
         content:
@@ -793,11 +762,13 @@ paths:
             schema:
               type: object
               properties:
-                userId:
+                postId:
                   type: integer
                   format: int64
-                  description: "User ID who likes the post"
-                  example: 12345
+                  description: "Post ID (Post.postId)"
+                  example: 67890
+              required:
+                - postId
       responses:
         "200":
           description: "Post liked successfully"
@@ -821,23 +792,22 @@ paths:
         - post
         - like
       summary: "Unlike a post"
-      description: "게시물 좋아요 취소. Like 엔티티에서 해당 레코드 삭제. 릴스 하단 하트 버튼 재클릭 시 사용"
+      description: "게시물 좋아요 취소. Like 엔티티에서 해당 레코드 삭제. 릴스 하단 하트 버튼 재클릭 시 사용. User ID는 JWT 토큰에서 추출됨"
       operationId: "unlikePost"
-      parameters:
-        - name: "post-id"
-          in: "path"
-          required: true
-          description: "Post ID (Post.postId)"
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "userId"
-          in: "query"
-          required: true
-          description: "User ID who unlikes the post"
-          schema:
-            type: "integer"
-            format: "int64"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                postId:
+                  type: integer
+                  format: int64
+                  description: "Post ID (Post.postId)"
+                  example: 67890
+              required:
+                - postId
       responses:
         "200":
           description: "Post unliked successfully"
@@ -863,7 +833,7 @@ paths:
         - post
         - upload
       summary: "Upload new video post"
-      description: "동영상 업로드 UI를 통한 새 게시물 생성. Post, Video 엔티티에 데이터 저장"
+      description: "동영상 업로드 UI를 통한 새 게시물 생성. Post, Video 엔티티에 데이터 저장. User ID는 JWT 토큰에서 추출됨"
       operationId: "uploadVideoPost"
       requestBody:
         required: true
@@ -886,11 +856,6 @@ paths:
                   type: string
                   format: binary
                   description: "Video file to upload"
-                userId:
-                  type: integer
-                  format: int64
-                  description: "User ID who uploads the post"
-                  example: 12345
                 regionId:
                   type: integer
                   format: int64
@@ -904,7 +869,6 @@ paths:
               required:
                 - title
                 - videoFile
-                - userId
                 - regionId
       responses:
         "201":

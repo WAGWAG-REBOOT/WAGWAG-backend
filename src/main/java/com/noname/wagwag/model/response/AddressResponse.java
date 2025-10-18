@@ -1,6 +1,6 @@
 package com.noname.wagwag.model.response;
 
-import com.wagwag.Address;
+import com.noname.wagwag.repository.entity.Address;
 import lombok.Data;
 
 import java.time.Instant;
