@@ -1,8 +1,8 @@
 package com.noname.wagwag.service;
 
 import com.noname.wagwag.model.response.LikeResponse;
+import com.noname.wagwag.post.repository.PostRepository;
 import com.noname.wagwag.repository.LikeRepository;
-import com.noname.wagwag.repository.PostRepository;
 import com.noname.wagwag.repository.UserRepository;
 import com.noname.wagwag.repository.entity.Like;
 import com.noname.wagwag.repository.entity.LikeId;

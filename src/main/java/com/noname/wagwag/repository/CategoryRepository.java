@@ -1,6 +1,6 @@
 package com.noname.wagwag.repository;
 
-import com.noname.wagwag.repository.entity.Category;
+import com.noname.wagwag.post.repository.entity.PostCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<PostCategory, Long> {
     
-    Optional<Category> findByCategoryName(String categoryName);
+    Optional<PostCategory> findByCategoryName(String categoryName);
     
-    List<Category> findAllByOrderByCategoryNameAsc();
+    List<PostCategory> findAllByOrderByCategoryNameAsc();
     
     @Query("SELECT c FROM Category c WHERE c.categoryName LIKE %:keyword%")
-    List<Category> findByCategoryNameContaining(@Param("keyword") String keyword);
+    List<PostCategory> findByCategoryNameContaining(@Param("keyword") String keyword);
     
     boolean existsByCategoryName(String categoryName);
 }

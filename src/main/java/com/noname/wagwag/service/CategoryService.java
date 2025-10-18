@@ -1,9 +1,9 @@
 package com.noname.wagwag.service;
 
 import com.noname.wagwag.model.response.CategoryResponse;
+import com.noname.wagwag.post.repository.entity.PostCategory;
 import com.noname.wagwag.repository.CategoryRepository;
 import com.noname.wagwag.repository.PostCategoryRepository;
-import com.noname.wagwag.repository.entity.Category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class CategoryService {
     
     public CategoryResponse getCategoryById(Long categoryId) {
         log.info("Getting category by id: {}", categoryId);
-        Category category = categoryRepository.findById(categoryId)
+        PostCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + categoryId));
         return convertToResponse(category);
     }
@@ -40,7 +40,7 @@ public class CategoryService {
         log.info("Getting user preferred categories for user: {}", userId);
         // TODO: 실제로는 사용자 선호도 로직을 구현해야 함
         // 현재는 모든 카테고리를 반환하되, 첫 번째 카테고리를 기본값으로 설정
-        List<Category> categories = categoryRepository.findAllByOrderByCategoryNameAsc();
+        List<PostCategory> categories = categoryRepository.findAllByOrderByCategoryNameAsc();
         
         return categories.stream()
                 .map(category -> CategoryResponse.builder()
@@ -59,16 +59,16 @@ public class CategoryService {
         if (categoryRepository.existsByCategoryName(categoryName)) {
             throw new RuntimeException("Category already exists: " + categoryName);
         }
-        
-        Category category = Category.builder()
+
+        PostCategory category = PostCategory.builder()
                 .categoryName(categoryName)
                 .build();
-        
-        Category savedCategory = categoryRepository.save(category);
+
+        PostCategory savedCategory = categoryRepository.save(category);
         return convertToResponse(savedCategory);
     }
     
-    private CategoryResponse convertToResponse(Category category) {
+    private CategoryResponse convertToResponse(PostCategory category) {
         return CategoryResponse.builder()
                 .categoryId(category.getCategoryId())
                 .categoryName(category.getCategoryName())

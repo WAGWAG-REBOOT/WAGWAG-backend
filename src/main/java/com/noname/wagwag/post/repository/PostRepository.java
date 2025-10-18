@@ -1,6 +1,7 @@
 package com.noname.wagwag.post.repository;
 
 import com.noname.wagwag.model.response.PostWithLikeCountDto;
+import com.noname.wagwag.post.repository.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,6 +1,6 @@
 package com.noname.wagwag.repository;
 
-import com.noname.wagwag.repository.entity.PostCategory;
+import com.noname.wagwag.post.repository.entity.PostCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

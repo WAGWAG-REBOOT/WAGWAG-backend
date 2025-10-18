@@ -6,6 +6,7 @@ import com.noname.wagwag.model.response.PopularPostResponse;
 import com.noname.wagwag.model.response.PostResponse;
 import com.noname.wagwag.post.repository.PostRepository;
 import com.noname.wagwag.model.response.PostWithLikeCountDto;
+import com.noname.wagwag.post.repository.entity.Post;
 import com.noname.wagwag.repository.PostCategoryRepository;
 import com.noname.wagwag.repository.LikeRepository;
 import lombok.RequiredArgsConstructor;

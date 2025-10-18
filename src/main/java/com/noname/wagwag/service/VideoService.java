@@ -2,11 +2,11 @@ package com.noname.wagwag.service;
 
 import com.noname.wagwag.model.request.VideoUploadRequest;
 import com.noname.wagwag.model.response.VideoUploadResponse;
-import com.noname.wagwag.repository.PostRepository;
+import com.noname.wagwag.post.repository.PostRepository;
+import com.noname.wagwag.post.repository.entity.Post;
 import com.noname.wagwag.repository.UserRepository;
 import com.noname.wagwag.repository.VideoRepository;
 import com.noname.wagwag.repository.ServiceRegionRepository;
-import com.noname.wagwag.repository.entity.Post;
 import com.noname.wagwag.repository.entity.Video;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
